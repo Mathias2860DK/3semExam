@@ -54,6 +54,14 @@ public class AllResource {
        List<DinnerEventDTO> dinnerEventDTOS = allFacade.getAllEvents();
        return gson.toJson(dinnerEventDTOS);
    }
+//US2
+    @GET
+    @Path("getAllEventsByUser/{username}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getAllEventsByUser(@PathParam("username") String userName){
+        List<DinnerEventDTO> dinnerEventDTOS = allFacade.getAllEventsByUser(userName);
+        return gson.toJson(dinnerEventDTOS);
+    }
 
     //US 2
     @GET
@@ -95,6 +103,7 @@ public class AllResource {
     public String addNewMembersToEvent(@PathParam("eventId") String eventId, String membersJson){
 
         //[ {id: "user", assignmentId: "1"}, {id: "random", assignmentId: "1""} ]
+        System.out.println(membersJson);
         Type genreTypeList = new TypeToken<ArrayList<MemberId>>() {
         }.getType();
         List<MemberId> memberIds = gson.fromJson(membersJson,genreTypeList);
@@ -104,7 +113,15 @@ public class AllResource {
         List<UserDTO> userDTOS = allFacade.addMembersToEvent(memberIds,eventId);
 
         return gson.toJson(userDTOS);
+    }
 
+    //US5 --> Display all membersAssignedToEvent
+    @GET
+    @Path("getAllMembersAssignedToEvent/{eventId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getAllMembersAssignedToEvent(@PathParam("eventId") String eventId){
+       List<UserDTO> userDTOS = allFacade.getAllMembersAssignedToEvent(eventId);
+        return gson.toJson(userDTOS);
     }
 
 

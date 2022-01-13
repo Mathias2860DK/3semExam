@@ -88,4 +88,15 @@ public class Assignment implements Serializable {
     public void setContactInfo(String contactInfo) {
         this.contactInfo = contactInfo;
     }
+
+    @Override
+    public String toString() {
+        return "Assignment{" +
+                "dinnerEvent=" + dinnerEvent +
+                ", users=" + users +
+                ", familyName='" + familyName + '\'' +
+                ", createDate=" + createDate +
+                ", contactInfo='" + contactInfo + '\'' +
+                '}';
+    }
 }

@@ -62,6 +62,21 @@ public class AllFacade {
         }
         return DinnerEventDTO.getDtos(dinnerEvents);
     }
+
+    public List<DinnerEventDTO> getAllEventsByUser(String userName) {
+        EntityManager em = emf.createEntityManager();
+User user = em.find(User.class,userName);
+List<Assignment> assignments = user.getAssignments();
+if (assignments == null){
+    throw new WebApplicationException("You have no assignments yet. Add one!",404);
+}
+List<DinnerEvent> dinnerEvents = new ArrayList<>();
+        for (Assignment assignment : assignments) {
+            dinnerEvents.add(assignment.getDinnerEvent());
+        }
+
+return DinnerEventDTO.getDtos(dinnerEvents);
+    }
 //Første gang en bruger adder sig til et assignment kan der ikke tiløjes brugere.
    public UserDTO addMemberToEvent(UserDTO userDTO, String eventId){
        EntityManager em = emf.createEntityManager();
@@ -141,6 +156,54 @@ public class AllFacade {
 
 
         return userDTOS;
+    }
+
+    //US-5
+    /*
+    public List<DinnerEventDTO> getAllEventsByUser(String userName) {
+        EntityManager em = emf.createEntityManager();
+User user = em.find(User.class,userName);
+List<Assignment> assignments = user.getAssignments();
+if (assignments == null){
+    throw new WebApplicationException("You have no assignments yet. Add one!",404);
+}
+List<DinnerEvent> dinnerEvents = new ArrayList<>();
+        for (Assignment assignment : assignments) {
+            dinnerEvents.add(assignment.getDinnerEvent());
+        }
+
+return DinnerEventDTO.getDtos(dinnerEvents);
+    }
+     */
+    public List<UserDTO> getAllMembersAssignedToEvent(String eventId) {
+        EntityManager em = emf.createEntityManager();
+        Integer eventIdInt = Integer.parseInt(eventId);
+        List<Assignment> assignments = em.find(DinnerEvent.class,eventIdInt).getAssignments();
+       // List<Assignment> assignments = dinnerEvent.getAssignments();
+        //Query query = em.createQuery("SELECT ")
+        List<User> users1 = em.createQuery("select u from User u").getResultList();
+        List<Assignment> assignments1 = new ArrayList<>();
+        for (User user: users1) {
+            for (Assignment assignment :user.getAssignments()) {
+                assignments1.add(assignment);
+            }
+
+
+        }
+        System.out.println(assignments1);
+
+        if (assignments == null){
+            throw new WebApplicationException("No assignments yet");
+        }
+        List<User> users = new ArrayList<>();
+        for (Assignment assignment : assignments1) {
+            for (User user : assignment.getUsers()) {
+                users.add(user);
+            }
+        }
+
+
+        return UserDTO.getDtos(users);
     }
 
     public List<TransactionDTO> getAllTransactionsById(String userName){

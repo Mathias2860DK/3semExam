@@ -10,10 +10,7 @@ import utils.EMF_Creator;
 
 import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityManagerFactory;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.SecurityContext;
@@ -45,5 +42,24 @@ public class AdminResource {
        DinnerEventDTO dinnerEventDTO = gson.fromJson(jsonEvent,DinnerEventDTO.class);
        DinnerEventDTO newDinnerEventDTO = adminFacade.addDinnerEvent(dinnerEventDTO);
        return gson.toJson(newDinnerEventDTO);
+   }
+
+   //US 5
+   @DELETE
+   @Path("deleteMemberFromEvent")
+   @Produces(MediaType.APPLICATION_JSON)
+   //@RolesAllowed()
+   public String deleteMemberFromEvent(String jsonEvent){
+      throw new WebApplicationException("Not implemented yet!");
+   }
+
+   //US 7
+   @DELETE
+   @Path("deleteEvent/{eventId}")
+   @Produces(MediaType.APPLICATION_JSON)
+   //@RolesAllowed()
+   public String deleteEvent(@PathParam("eventId") String eventId){
+       adminFacade.deleteEvent(eventId);
+       throw new WebApplicationException("Not implemented yet!");
    }
 }

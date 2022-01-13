@@ -43,6 +43,21 @@ public class AdminFacade {
         return DinnerEventDTO.getDtos(dinnerEvents);
     }
 
+    public DinnerEventDTO deleteEvent(String eventId){
+        EntityManager em = emf.createEntityManager();
+        int eventIdInt;
+        try {
+            eventIdInt = Integer.parseInt(eventId);
+        } catch (NumberFormatException e){
+            throw new NumberFormatException("Contact IT...");
+        }
+        DinnerEvent dinnerEvent = em.find(DinnerEvent.class,eventIdInt);
+        em.getTransaction().begin();
+        em.remove(dinnerEvent);
+        em.getTransaction().commit();
+        return null;
+    }
+
     public DinnerEventDTO addDinnerEvent(DinnerEventDTO dinnerEventDTO){
         EntityManager em = emf.createEntityManager();
         dinnerEventDTO.setTime(new Date());//TODO: custom time

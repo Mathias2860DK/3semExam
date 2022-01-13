@@ -14,7 +14,7 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "dinnerEvent")
-public class DinnerEvent implements Serializable {
+public class gDinnerEvent implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "dinner_event_id", nullable = false)

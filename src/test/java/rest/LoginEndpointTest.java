@@ -1,25 +1,31 @@
 package rest;
 
-import entities.User;
-import entities.Role;
+import dtos.DinnerEventDTO;
+import entities.*;
 
 import io.restassured.RestAssured;
 import static io.restassured.RestAssured.given;
 import io.restassured.http.ContentType;
 import io.restassured.parsing.Parser;
 import java.net.URI;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.ws.rs.core.UriBuilder;
 import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.grizzly.http.util.HttpStatus;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import static org.hamcrest.Matchers.equalTo;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasItems;
+
+import org.junit.jupiter.api.*;
 import utils.EMF_Creator;
 
 //Disabled
@@ -31,6 +37,10 @@ public class LoginEndpointTest {
     static final URI BASE_URI = UriBuilder.fromUri(SERVER_URL).port(SERVER_PORT).build();
     private static HttpServer httpServer;
     private static EntityManagerFactory emf;
+    User user;
+    DinnerEvent dinnerEvent1;
+    DinnerEvent dinnerEvent2;
+    DinnerEvent dinnerEvent3;
 
     static HttpServer startServer() {
         ResourceConfig rc = ResourceConfig.forApplication(new ApplicationConfig());
@@ -66,12 +76,20 @@ public class LoginEndpointTest {
         try {
             em.getTransaction().begin();
             //Delete existing users and roles to get a "fresh" database
+            em.createQuery("delete from Transaction").executeUpdate();
+            em.createQuery("delete from Assignment ").executeUpdate();
+            em.createQuery("delete from DinnerEvent ").executeUpdate();
+
             em.createQuery("delete from User").executeUpdate();
             em.createQuery("delete from Role").executeUpdate();
 
+
+
             Role userRole = new Role("user");
             Role adminRole = new Role("admin");
-            User user = new User("user", "test");
+            User testUser = new User("testUser","test");
+            testUser.addRole(userRole);
+             user = new User("user", "test");
             user.addRole(userRole);
             User admin = new User("admin", "test");
             admin.addRole(adminRole);
@@ -83,8 +101,59 @@ public class LoginEndpointTest {
             em.persist(user);
             em.persist(admin);
             em.persist(both);
+            em.persist(testUser);
             //System.out.println("Saved test data to database");
             em.getTransaction().commit();
+
+            Date date;
+            try {
+                String date_string = "13-01-2020";
+                //Instantiating the SimpleDateFormat class
+                SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+                //Parsing the given String to Date object
+
+                date = formatter.parse(date_string);
+            } catch (NumberFormatException | ParseException e){
+                throw new NumberFormatException("format fejl");
+            }
+
+            //Creating Dinner Events
+            dinnerEvent1 = new DinnerEvent("Fiktivvej 13, kbh Ø","Kylling i karry",200,date);
+            dinnerEvent2 = new DinnerEvent("Fiktivvej 15, Søborg","Burger",150,date);
+            dinnerEvent3 = new DinnerEvent("Fiktivvej 100, Emdrup","Pizza",300,date);
+
+            //Not marked Cascade persist. So have to be persisted first
+            em.getTransaction().begin();
+            em.persist(dinnerEvent1);
+            em.persist(dinnerEvent2);
+            em.persist(dinnerEvent3);
+            em.getTransaction().commit();
+          /*  dinnerEvent1.setId(1);
+            dinnerEvent2.setId(2);
+            dinnerEvent3.setId(3);*/
+
+            //Creating assignments;
+            Assignment assignment1 = new Assignment(dinnerEvent1,"Poulsen","112233");
+            Assignment assignment2 = new Assignment(dinnerEvent2,"Jensen","2222222");
+            Assignment assignment3 = new Assignment(dinnerEvent3,"Poulsen","112233");
+
+            //Creating transactions:
+            Transaction transaction1 = new Transaction(dinnerEvent1.getPricePerPerson());
+            Transaction transaction2 = new Transaction(dinnerEvent2.getPricePerPerson());
+            Transaction transaction3 = new Transaction(dinnerEvent3.getPricePerPerson());
+
+            user.setBalance(1000);
+
+            user.addAssignment(assignment1); //Assignment contains Dinner Event
+            user.addTransaction(transaction1);
+
+            user.addAssignment(assignment3);
+            user.addTransaction(transaction3);
+
+            em.getTransaction().begin();
+            em.persist(user);
+            em.getTransaction().commit();
+
         } finally {
             em.close();
         }
@@ -104,6 +173,61 @@ public class LoginEndpointTest {
                 .then()
                 .extract().path("token");
         //System.out.println("TOKEN ---> " + securityToken);
+    }
+
+
+    //US1
+    @Test
+    @DisplayName("US1")
+    public void getAllEvents(){
+        login("user","test");
+        given().log().all().when().get("/all/getAllEvents").then().log().body();
+        List<DinnerEventDTO> dinnerEventDTOS;
+        dinnerEventDTOS = given()
+                .contentType("application/json")
+                .when()
+                .get("/all/getAllEvents")
+                .then()
+                .extract().body().jsonPath().getList(".", DinnerEventDTO.class);
+        DinnerEventDTO dinnerEventDTO1 = new DinnerEventDTO(dinnerEvent1);
+        DinnerEventDTO dinnerEventDTO2 = new DinnerEventDTO(dinnerEvent2);
+        DinnerEventDTO dinnerEventDTO3 = new DinnerEventDTO(dinnerEvent3);
+
+        //Requires equals method in DinnerEventDTO
+        assertThat(dinnerEventDTOS, containsInAnyOrder(dinnerEventDTO1,dinnerEventDTO2,dinnerEventDTO3));
+
+    }
+
+    //US2 --> Check account balance
+    @Test
+    @DisplayName("US2 --> Check account balance")
+    public void getAccountBalance(){
+        login("user","test");
+        given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .when()
+                .get("/all/getAccountBalance/{username}",user.getUserName()).then()
+                .assertThat()
+                .statusCode(HttpStatus.OK_200.getStatusCode())
+                .body("accountBalance", equalTo("500.0"));
+    }
+
+    //US 2 --> check all previous transactions
+    @Test
+    @DisplayName("US 2 --> check all previous transactions")
+    public void getAllTransactionsById(){
+        login("user","test");
+        given().log().all().when().get("/all/getAllTransactionsById/{username}",user.getUserName()).then().log().body();
+        given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .when()
+                .get("/all/getAllTransactionsById/{username}",user.getUserName()).then()
+                .assertThat()
+                .statusCode(HttpStatus.OK_200.getStatusCode())
+                .body("size()", equalTo(2));
+
     }
 
     private void logOut() {

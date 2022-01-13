@@ -28,6 +28,8 @@ populateTestUsers();
     User admin = new User("admin", "test2");
     User both = new User("user_admin", "test3");
 
+    User testUser = new User("testUser","test1");
+
 
     if(admin.getUserPass().equals("test")||user.getUserPass().equals("test")||both.getUserPass().equals("test"))
       throw new UnsupportedOperationException("You have not changed the passwords");
@@ -35,6 +37,9 @@ populateTestUsers();
     em.getTransaction().begin();
     Role userRole = new Role("user");
     Role adminRole = new Role("admin");
+
+    testUser.addRole(userRole);
+
     user.addRole(userRole);
     admin.addRole(adminRole);
     both.addRole(userRole);
@@ -44,6 +49,7 @@ populateTestUsers();
     em.persist(user);
     em.persist(admin);
     em.persist(both);
+    em.persist(testUser);
     em.getTransaction().commit();
     System.out.println("PW: " + user.getUserPass());
     System.out.println("Testing user with OK password: " + user.verifyPassword("test"));
@@ -64,17 +70,28 @@ populateTestUsers();
     em.getTransaction().commit();
 
     Assignment assignment= new Assignment(dinnerEvent,"Poulsen","11223344");
-    assignment.setDinnerEvent(dinnerEvent);
-    em.getTransaction().begin();
-    em.persist(assignment);
-    em.getTransaction().commit();
+    Transaction transaction = new Transaction(assignment.getDinnerEvent().getPricePerPerson());
 
-    //Adding transactions:
-    Transaction transaction = new Transaction(200);
+    user.setBalance(1000);
     user.addTransaction(transaction);
+    user.addAssignment(assignment);
+    //bruger vil gerne tilføje 2 medlemmer til assignmentet.
+
+    user.addTransaction(new Transaction(300));
+    user.addTransaction(new Transaction(400));
+    //admin.addAssignment(assignment);
+
+    //assignment.setDinnerEvent(dinnerEvent);
+
     em.getTransaction().begin();
     em.persist(user);
     em.getTransaction().commit();
+
+    //Adding transactions:
+   /*
+    em.getTransaction().begin();
+    em.persist(user);
+    em.getTransaction().commit();*/
   }
 
 }

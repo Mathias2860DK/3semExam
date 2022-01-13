@@ -3,6 +3,7 @@ package entities;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -21,6 +22,9 @@ public class Assignment implements Serializable {
     @ManyToOne()
     private DinnerEvent dinnerEvent;
 
+    @ManyToMany
+    private List<User> users;
+
     private String familyName;
     @Temporal(TemporalType.DATE)
     private Date createDate;
@@ -32,11 +36,18 @@ public class Assignment implements Serializable {
         this.familyName = familyName;
         this.createDate = new Date();
         this.contactInfo = contactInfo;
+        this.users = new ArrayList<>();
     }
 
     public Assignment() {
     }
 
+    public void addUser(User user) {
+        this.users.add(user);
+        if (user != null){
+           // user.add(this);
+        }
+    }
     public DinnerEvent getDinnerEvent() {
         return dinnerEvent;
     }
@@ -63,6 +74,15 @@ public class Assignment implements Serializable {
 
     public String getContactInfo() {
         return contactInfo;
+    }
+
+    public List<User> getUsers() {
+        return users;
+    }
+
+
+    public void setUsers(List<User> users) {
+        this.users = users;
     }
 
     public void setContactInfo(String contactInfo) {

@@ -5,6 +5,7 @@ import entities.DinnerEvent;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 
 public class DinnerEventDTO {
@@ -70,6 +71,25 @@ public class DinnerEventDTO {
 
     public void setTime(Date time) {
         this.time = time;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DinnerEventDTO that = (DinnerEventDTO) o;
+        return Double.compare(that.pricePerPerson, pricePerPerson) == 0 && Objects.equals(id, that.id) && Objects.equals(location, that.location) && Objects.equals(dish, that.dish) && Objects.equals(time, that.time);
+    }
+
+    @Override
+    public String toString() {
+        return "DinnerEventDTO{" +
+                "id=" + id +
+                ", location='" + location + '\'' +
+                ", dish='" + dish + '\'' +
+                ", pricePerPerson=" + pricePerPerson +
+                ", time=" + time +
+                '}';
     }
 
     public void setPricePerPerson(double pricePerPerson) {

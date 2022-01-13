@@ -36,6 +36,9 @@ public class User implements Serializable {
   private int birthYear;
   private double balance;
 
+  @ManyToMany(mappedBy = "users",cascade = CascadeType.PERSIST)
+  private List<Assignment> assignments;
+
   @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST)
   private List<Transaction> transactions;
 
@@ -46,10 +49,17 @@ public class User implements Serializable {
   public void addTransaction(Transaction transaction) {
     this.transactions.add(transaction);
     if (transaction != null){
+      setBalance(getBalance() - transaction.getAmount());
       transaction.setUser(this);
     }
   }
 
+  public void addAssignment(Assignment assignment) {
+    this.assignments.add(assignment);
+    if (assignment != null){
+      assignment.getUsers().add(this);
+    }
+  }
 
 
   public String getAddress() {
@@ -106,6 +116,7 @@ public class User implements Serializable {
 
   public User() {
     this.transactions = new ArrayList<>();
+    this.assignments = new ArrayList<>();
   }
 
   //TODO Change when password is hashed
@@ -147,4 +158,7 @@ public class User implements Serializable {
     roleList.add(userRole);
   }
 
+  public List<Assignment> getAssignments() {
+    return assignments;
+  }
 }

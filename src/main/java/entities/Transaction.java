@@ -51,4 +51,9 @@ public class Transaction {
     public void setUser(User user) {
         this.user = user;
     }
+
+
+    public Integer getId() {
+        return id;
+    }
 }

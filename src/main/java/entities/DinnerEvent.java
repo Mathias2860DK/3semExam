@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  *
@@ -84,6 +85,19 @@ public class DinnerEvent implements Serializable {
     public Date getTime() {
         return time;
     }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DinnerEvent that = (DinnerEvent) o;
+        return Double.compare(that.pricePerPerson, pricePerPerson) == 0 && Objects.equals(id, that.id) && Objects.equals(assignments, that.assignments) && Objects.equals(location, that.location) && Objects.equals(dish, that.dish) && Objects.equals(time, that.time);
+    }
+
 
     public void setPricePerPerson(double pricePerPerson) {
         this.pricePerPerson = pricePerPerson;

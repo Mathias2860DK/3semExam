@@ -2,11 +2,19 @@ package rest;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.reflect.TypeToken;
+import com.nimbusds.jose.shaded.json.JSONArray;
 import dtos.DinnerEventDTO;
+import dtos.TransactionDTO;
+import dtos.UserDTO;
+import entities.DinnerEvent;
+import entities.Transaction;
 import entities.User;
 import facades.AllFacade;
 import facades.UserFacade;
 import utils.EMF_Creator;
+import utils.MemberId;
 import utils.SetupTestUsers;
 
 import javax.annotation.security.RolesAllowed;
@@ -18,6 +26,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -45,16 +55,58 @@ public class AllResource {
        return gson.toJson(dinnerEventDTOS);
    }
 
+    //US 2
+    @GET
+    @Path("getAllTransactionsById/{username}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getAllTransactionsById(@PathParam("username") String userName){
+        List<TransactionDTO> transactions = allFacade.getAllTransactionsById(userName);
+        return gson.toJson(transactions);
+    }
+
+    //US 2 Current account status
+    @GET
+    @Path("getAccountBalance/{username}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getAccountBalance(@PathParam("username") String userName){
+       double accountBalance = allFacade.getAccountBalance(userName);
+        return "{\"accountBalance\": \"" + accountBalance + "\"}";
+    }
+
    //US 3
-   @POST
-    @Path("addMembersToEvent")
+   @PUT
+    @Path("addMemberToEvent/{eventId}")
    @Produces(MediaType.APPLICATION_JSON)
    @Consumes(MediaType.APPLICATION_JSON)
-    public String addMembersToEvent(){
+    public String addMemberToEvent(@PathParam("eventId") String eventId, String memberJson){
 
+      UserDTO userDTO = gson.fromJson(memberJson,UserDTO.class);
+      UserDTO userDTO1 = allFacade.addMemberToEvent(userDTO,eventId);
 
-       return "";
+       return gson.toJson(userDTO1);
 
    }
+
+   //US3
+    @PUT
+    @Path("addMembersToEvent/{eventId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public String addNewMembersToEvent(@PathParam("eventId") String eventId, String membersJson){
+
+        //[ {id: "user", assignmentId: "1"}, {id: "random", assignmentId: "1""} ]
+        Type genreTypeList = new TypeToken<ArrayList<MemberId>>() {
+        }.getType();
+        List<MemberId> memberIds = gson.fromJson(membersJson,genreTypeList);
+        for (MemberId memberId: memberIds) {
+            System.out.println(memberId.getId());
+        }
+        List<UserDTO> userDTOS = allFacade.addMembersToEvent(memberIds,eventId);
+
+        return gson.toJson(userDTOS);
+
+    }
+
+
 
 }

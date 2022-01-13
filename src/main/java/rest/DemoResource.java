@@ -48,7 +48,7 @@ public class DemoResource {
     @Produces(MediaType.APPLICATION_JSON)
     public String populateTestUsers(){
         SetupTestUsers.populateTestUsers();
-        return "done";
+        return "{\"msg\": \"database populated\"}";
     }
 
 

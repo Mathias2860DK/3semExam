@@ -2,15 +2,9 @@ package entities;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import org.mindrot.jbcrypt.BCrypt;
@@ -36,6 +30,69 @@ public class User implements Serializable {
   @ManyToMany
   private List<Role> roleList = new ArrayList<>();
 
+  private String address;
+  private int phone;
+  private String email;
+  private int birthYear;
+  private double balance;
+
+  @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST)
+  private List<Transaction> transactions;
+
+  public List<Transaction> getTransactions() {
+    return transactions;
+  }
+
+  public void addTransaction(Transaction transaction) {
+    this.transactions.add(transaction);
+    if (transaction != null){
+      transaction.setUser(this);
+    }
+  }
+
+
+
+  public String getAddress() {
+    return address;
+  }
+
+  public void setAddress(String address) {
+    this.address = address;
+  }
+
+  public double getBalance() {
+    return balance;
+  }
+
+  public void setBalance(double balance) {
+    this.balance = balance;
+  }
+
+
+  public int getPhone() {
+    return phone;
+  }
+
+  public void setPhone(int phone) {
+    this.phone = phone;
+  }
+
+  public String getEmail() {
+    return email;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public int getBirthYear() {
+    return birthYear;
+  }
+
+  public void setBirthYear(int birthYear) {
+    this.birthYear = birthYear;
+  }
+
   public List<String> getRolesAsStrings() {
     if (roleList.isEmpty()) {
       return null;
@@ -47,7 +104,9 @@ public class User implements Serializable {
     return rolesAsStrings;
   }
 
-  public User() {}
+  public User() {
+    this.transactions = new ArrayList<>();
+  }
 
   //TODO Change when password is hashed
   public boolean verifyPassword(String pw){

@@ -9,7 +9,7 @@ import javax.persistence.EntityManagerFactory;
 public class SetupTestUsers {
 
   public static void main(String[] args) {
-
+populateTestUsers();
   }
 
 
@@ -49,6 +49,32 @@ public class SetupTestUsers {
     System.out.println("Testing user with OK password: " + user.verifyPassword("test"));
     System.out.println("Testing user with wrong password: " + user.verifyPassword("test1"));
     System.out.println("Created TEST Users");
+
+  /*  DinnerEvent dinnerEvent = new DinnerEvent("FiktivVej, 2100","Kylling i karry",200);
+    Assignment assignment = new Assignment(dinnerEvent,"Poulsen","11223344");
+    dinnerEvent.addAssignment(assignment);
+    em.getTransaction().begin();
+    em.persist(dinnerEvent);
+    em.getTransaction().commit();*/
+
+    DinnerEvent dinnerEvent = new DinnerEvent("FiktivVej, 2100","Kylling i karry",200,null);
+
+    em.getTransaction().begin();
+    em.persist(dinnerEvent);
+    em.getTransaction().commit();
+
+    Assignment assignment= new Assignment(dinnerEvent,"Poulsen","11223344");
+    assignment.setDinnerEvent(dinnerEvent);
+    em.getTransaction().begin();
+    em.persist(assignment);
+    em.getTransaction().commit();
+
+    //Adding transactions:
+    Transaction transaction = new Transaction(200);
+    user.addTransaction(transaction);
+    em.getTransaction().begin();
+    em.persist(user);
+    em.getTransaction().commit();
   }
 
 }

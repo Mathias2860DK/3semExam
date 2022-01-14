@@ -14,7 +14,7 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "dinnerEvent")
-@NamedQuery(name = "DinnerEvent.deleteAllRows", query = "DELETE from DinnerEvent ")
+@NamedQuery(name = "DinnerEvent.deleteAllRows", query = "DELETE from DinnerEvent")
 public class DinnerEvent implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

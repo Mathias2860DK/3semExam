@@ -1,5 +1,7 @@
 package facades;
 
+import dtos.DinnerEventDTO;
+import entities.DinnerEvent;
 import utils.EMF_Creator;
 import entities.RenameMe;
 import javax.persistence.EntityManager;
@@ -11,12 +13,15 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 //Uncomment the line below, to temporarily disable this test
 //@Disabled
 public class FacadeExampleTest {
 
     private static EntityManagerFactory emf;
     private static FacadeExample facade;
+    private static AllFacade allFacade;
 
     public FacadeExampleTest() {
     }
@@ -25,6 +30,7 @@ public class FacadeExampleTest {
     public static void setUpClass() {
        emf = EMF_Creator.createEntityManagerFactoryForTest();
        facade = FacadeExample.getFacadeExample(emf);
+       allFacade = AllFacade.getAllFacade(emf);
     }
 
     @AfterAll
@@ -40,8 +46,10 @@ public class FacadeExampleTest {
         try {
             em.getTransaction().begin();
             em.createNamedQuery("RenameMe.deleteAllRows").executeUpdate();
+            em.createNamedQuery("DinnerEvent.deleteAllRows").executeUpdate();
             em.persist(new RenameMe("Some txt", "More text"));
             em.persist(new RenameMe("aaa", "bbb"));
+            em.persist(new DinnerEvent("location","dish",100, null));
 
             em.getTransaction().commit();
         } finally {
@@ -58,6 +66,12 @@ public class FacadeExampleTest {
     @Test
     public void testAFacadeMethod() throws Exception {
         assertEquals(2, facade.getRenameMeCount(), "Expects two rows in the database");
+    }
+
+    @Test
+    public void testGetAllEvents(){
+        List<DinnerEventDTO> dinnerEvents = allFacade.getAllEvents();
+        assertEquals(1,dinnerEvents.size());
     }
     
 

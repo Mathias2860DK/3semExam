@@ -72,6 +72,7 @@ populateTestUsers();
     Assignment assignment= new Assignment(dinnerEvent,"Poulsen","11223344");
     Transaction transaction = new Transaction(assignment.getDinnerEvent().getPricePerPerson());
 
+    dinnerEvent.addAssignment(assignment);
     user.setBalance(1000);
     user.addTransaction(transaction);
     user.addAssignment(assignment);

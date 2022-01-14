@@ -125,6 +125,13 @@ return DinnerEventDTO.getDtos(dinnerEvents);
         EntityManager em = emf.createEntityManager();
         List<UserDTO> userDTOS = new ArrayList<>();
 
+        int eventIdInt;
+        try {
+            eventIdInt = Integer.parseInt(eventId);
+        } catch (NumberFormatException e){
+            throw new NumberFormatException("Contact IT...");
+        }
+
         for (MemberId memberId : memberIds) {
             Query query2 = em.createQuery("SELECT u from User u where u.userName = :userId",User.class);
             query2.setParameter("userId",memberId.getId());
@@ -134,6 +141,7 @@ return DinnerEventDTO.getDtos(dinnerEvents);
             query3.setParameter("id",memberId.getAssignmentId());
             Assignment assignment = (Assignment) query3.getSingleResult();
             assignment.addUser(user);
+            assignment.getDinnerEvent().addAssignment(assignment);// bidirectional
 
             Transaction transaction = new Transaction(assignment.getDinnerEvent().getPricePerPerson());
             user.addTransaction(transaction);
@@ -158,37 +166,22 @@ return DinnerEventDTO.getDtos(dinnerEvents);
         return userDTOS;
     }
 
-    //US-5
-    /*
-    public List<DinnerEventDTO> getAllEventsByUser(String userName) {
-        EntityManager em = emf.createEntityManager();
-User user = em.find(User.class,userName);
-List<Assignment> assignments = user.getAssignments();
-if (assignments == null){
-    throw new WebApplicationException("You have no assignments yet. Add one!",404);
-}
-List<DinnerEvent> dinnerEvents = new ArrayList<>();
-        for (Assignment assignment : assignments) {
-            dinnerEvents.add(assignment.getDinnerEvent());
-        }
 
-return DinnerEventDTO.getDtos(dinnerEvents);
-    }
-     */
+    //Dosent work....
     public List<UserDTO> getAllMembersAssignedToEvent(String eventId) {
         EntityManager em = emf.createEntityManager();
         Integer eventIdInt = Integer.parseInt(eventId);
         List<Assignment> assignments = em.find(DinnerEvent.class,eventIdInt).getAssignments();
        // List<Assignment> assignments = dinnerEvent.getAssignments();
         //Query query = em.createQuery("SELECT ")
+
+
         List<User> users1 = em.createQuery("select u from User u").getResultList();
         List<Assignment> assignments1 = new ArrayList<>();
         for (User user: users1) {
             for (Assignment assignment :user.getAssignments()) {
                 assignments1.add(assignment);
             }
-
-
         }
         System.out.println(assignments1);
 
@@ -210,8 +203,6 @@ return DinnerEventDTO.getDtos(dinnerEvents);
         EntityManager em = emf.createEntityManager();
         User user = em.find(User.class,userName);
         List<Transaction> transactions = user.getTransactions();
-
-
         return TransactionDTO.getDtos(transactions);
     }
 

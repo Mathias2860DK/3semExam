@@ -1,5 +1,7 @@
 package rest;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import dtos.DinnerEventDTO;
 import entities.*;
 
@@ -35,6 +37,7 @@ public class LoginEndpointTest {
     private static final String SERVER_URL = "http://localhost/api";
 
     static final URI BASE_URI = UriBuilder.fromUri(SERVER_URL).port(SERVER_PORT).build();
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static HttpServer httpServer;
     private static EntityManagerFactory emf;
     User user;
@@ -228,6 +231,25 @@ public class LoginEndpointTest {
                 .statusCode(HttpStatus.OK_200.getStatusCode())
                 .body("size()", equalTo(2));
 
+    }
+
+    //US 4
+    @Test
+    public void addDinnerEvent(){
+        login("admin","test");
+
+        DinnerEventDTO dinnerEventDTO = new DinnerEventDTO("fiktivvej 100, Søborg 2860","pizza",300);
+        String requestBody = GSON.toJson(dinnerEventDTO);
+        given()
+                .contentType("application/json")
+                .header("x-access-token", securityToken)
+                .and()
+                .body(requestBody)
+                .post("/admin/addDinnerEvent")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK_200.getStatusCode())
+                .body("dish", equalTo("pizza"));
     }
 
     private void logOut() {

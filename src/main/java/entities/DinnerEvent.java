@@ -14,13 +14,14 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "dinnerEvent")
-public class gDinnerEvent implements Serializable {
+@NamedQuery(name = "DinnerEvent.deleteAllRows", query = "DELETE from DinnerEvent ")
+public class DinnerEvent implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "dinner_event_id", nullable = false)
     private Integer id;
 
-    @OneToMany(mappedBy = "dinnerEvent", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "dinnerEvent", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     private List<Assignment> assignments;
 
     private String location; //TODO: Object later

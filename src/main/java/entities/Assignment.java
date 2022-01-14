@@ -22,7 +22,7 @@ public class Assignment implements Serializable {
     @ManyToOne()
     private DinnerEvent dinnerEvent;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     private List<User> users;
 
     private String familyName;

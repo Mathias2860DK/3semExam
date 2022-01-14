@@ -34,6 +34,7 @@ public class AdminResource {
     @Context
     SecurityContext securityContext;
 
+    //US4
    @POST
    @Path("addDinnerEvent")
    @Produces(MediaType.APPLICATION_JSON)
@@ -56,10 +57,10 @@ public class AdminResource {
    //US 7
    @DELETE
    @Path("deleteEvent/{eventId}")
+   @RolesAllowed("admin")
    @Produces(MediaType.APPLICATION_JSON)
-   //@RolesAllowed()
    public String deleteEvent(@PathParam("eventId") String eventId){
-       adminFacade.deleteEvent(eventId);
-       throw new WebApplicationException("Not implemented yet!");
+       DinnerEventDTO dinnerEventDTO = adminFacade.deleteEvent(eventId);
+       return gson.toJson(dinnerEventDTO);
    }
 }

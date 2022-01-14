@@ -1,11 +1,14 @@
 package facades;
 
 import dtos.DinnerEventDTO;
+import entities.Assignment;
 import entities.DinnerEvent;
+import entities.User;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.ws.rs.WebApplicationException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -45,6 +48,7 @@ public class AdminFacade {
 
     public DinnerEventDTO deleteEvent(String eventId){
         EntityManager em = emf.createEntityManager();
+
         int eventIdInt;
         try {
             eventIdInt = Integer.parseInt(eventId);
@@ -52,10 +56,28 @@ public class AdminFacade {
             throw new NumberFormatException("Contact IT...");
         }
         DinnerEvent dinnerEvent = em.find(DinnerEvent.class,eventIdInt);
+        List<Assignment> assignments = dinnerEvent.getAssignments();
+
+        //All assignments removed
+        if (assignments != null){
+
+            for (Assignment assignment: assignments) {
+                em.getTransaction().begin();
+                System.out.println(assignment.getFamilyName());
+
+                em.remove(assignment);
+                em.getTransaction().commit();
+            }
+
+        }
+
+        DinnerEvent dinnerEventAfterAssignmentDelete = em.find(DinnerEvent.class,eventIdInt);
+
         em.getTransaction().begin();
-        em.remove(dinnerEvent);
+        em.remove(dinnerEventAfterAssignmentDelete);
         em.getTransaction().commit();
-        return null;
+
+        return new DinnerEventDTO(dinnerEvent);
     }
 
     public DinnerEventDTO addDinnerEvent(DinnerEventDTO dinnerEventDTO){

@@ -51,7 +51,6 @@ public class DemoResource {
         return "{\"msg\": \"database populated\"}";
     }
 
-
     //Just to verify if the database is setup
     @GET
     @Produces(MediaType.APPLICATION_JSON)

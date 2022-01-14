@@ -20,7 +20,6 @@ import java.util.List;
 public class FacadeExampleTest {
 
     private static EntityManagerFactory emf;
-    private static FacadeExample facade;
     private static AllFacade allFacade;
 
     public FacadeExampleTest() {
@@ -29,7 +28,6 @@ public class FacadeExampleTest {
     @BeforeAll
     public static void setUpClass() {
        emf = EMF_Creator.createEntityManagerFactoryForTest();
-       facade = FacadeExample.getFacadeExample(emf);
        allFacade = AllFacade.getAllFacade(emf);
     }
 
